@@ -171,9 +171,11 @@ consumer(int id)
     read_buffer(&buf);
     
     //TODO #7: Wait for a full slot (pizza available)
+    sem_wait(buf.full_sem);
     
     //TODO #8: Lock the mutex to enter critical section
-    
+    mutex_lock(buf.mutex_id);
+
     // === CRITICAL SECTION ===
     // Read current buffer state
     read_buffer(&buf);
@@ -182,6 +184,11 @@ consumer(int id)
     
     // TODO #9: Comment the following code block
     // to explain what it does
+
+    /**
+     * If VIP priority is being used, we search the buffer for a VIP pizza to deliver first
+     * If no VIP pizza, we simply deliver a regular pizza
+     */
     if(buf.use_vip_priority) {
       // Search for VIP pizza first
       int vip_index = -1;
@@ -197,6 +204,10 @@ consumer(int id)
       
       if(vip_index >= 0) {
         // TODO #10: Comment what below code block does
+        /**
+         * This block is entered if we have found a VIP pizza
+         * we remove the VIP pizza from the buffer, and shift all the other pizzas forward to fill the rest of the space
+         */
         pizza = buf.buffer[vip_index];
         
         // Shift elements to fill the gap
@@ -238,8 +249,10 @@ consumer(int id)
     // === END CRITICAL SECTION ===
     
     //TODO #11: Unlock the mutex
-    
+    mutex_unlock(buf.mutex_id);
+
     //TODO #12: Signal that there's now an empty slot
+    sem_signal(buf.empty_sem);
 
     pause(5);  // Small delay for readability
   }
