@@ -53,6 +53,7 @@ increment_counter(int use_mutex, int process_id)
     // TODO: Enable the lock
     //HINT: If using mutex, LOCK it here before entering critical section
     //HINT: acquire lock by calling mutex lock function as mutex_lock(mutex_id)
+    mutex_lock(mutex_id);
 
     // === CRITICAL SECTION ===
     // This code accesses shared data and causes race conditions!
@@ -64,6 +65,7 @@ increment_counter(int use_mutex, int process_id)
     // ========== TODO #2 ==========
     // TODO: Release the lock
     // HINT: If using mutex, use mutex_unlock function to release the lock 
+    mutex_unlock(mutex_id);
   }
   
   printf("Process %d done\n", process_id);
