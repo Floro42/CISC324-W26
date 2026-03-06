@@ -97,6 +97,9 @@ producer(int id)
     read_buffer(&buf);
 
     // TODO #1: Write explanatory comment for the following block
+    /**
+     * If the buffer system is using the VIP priority, we check if the pizza is a VIP order or not to properly assign weighting
+     */
     if(buf.use_vip_priority) {
       pizza.is_vip = (pizza.order_id % 10 < 3) ? 1 : 0;
     } else {
@@ -104,15 +107,23 @@ producer(int id)
     }
     
     //TODO #2: Wait for an empty slot
+    //Waiting for a slot in the empty semaphore
+    sem_wait(buf.empty_sem);
     
     //TODO #3: Lock the mutex to enter critical section
-    
+    mutex_lock(buf.mutex_id);
     // === CRITICAL SECTION ===
     // Read current buffer state
     read_buffer(&buf);
     
     // TODO #4: Write comment for the following block
     // to explain what it does
+
+    /**
+     * Adds a pizza to the buffer, then updates the buffer, the count, and the total number of produced pizzas
+     * If accounting for VIP priority, and the pizza is a VIP, we add a count to the number of VIP pizzas produced
+     * otherwise, produce a pizza normally
+     */
 
     buf.buffer[buf.in] = pizza;
     buf.in = (buf.in + 1) % BUFFER_SIZE;
@@ -133,8 +144,10 @@ producer(int id)
     // === END CRITICAL SECTION ===
     
     //TODO #5: Unlock the mutex
-    
+    mutex_unlock(buf.mutex_id);
+
     //TODO #6: Signal that there's now a full slot
+    sem_signal(buf.full_sem);
 
     pause(5);  // Small delay for readability 
   }
